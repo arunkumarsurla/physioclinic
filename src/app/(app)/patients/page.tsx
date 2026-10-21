@@ -20,9 +20,11 @@ export default async function PatientsPage({ searchParams }: { searchParams: SP 
   const dues = (showMoney && ["due", "advance"].includes(sp(s.dues)) ? sp(s.dues) : "all") as NonNullable<PatientListParams["dues"]>;
   const sort = (["card", "name", "recent", "dues"].includes(sp(s.sort)) ? sp(s.sort) : "card") as NonNullable<PatientListParams["sort"]>;
   const page = spInt(s.page, 1);
-  const settings = await getSettings();
+  const [{ rows, total, pageSize }, settings] = await Promise.all([
+    listPatients({ q, status, dues, sort: !showMoney && sort === "dues" ? "card" : sort, page, pageSize: 25 }),
+    getSettings(),
+  ]);
   const waOn = waAllowed(user, settings, "general");
-  const { rows, total, pageSize } = await listPatients({ q, status, dues, sort: !showMoney && sort === "dues" ? "card" : sort, page, pageSize: 25 });
   const params = { q, status: status === "active" ? "" : status, dues: dues === "all" ? "" : dues, sort: sort === "card" ? "" : sort };
 
   return (

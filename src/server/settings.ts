@@ -32,10 +32,9 @@ export const getSettings = cache(async (): Promise<ClinicSettings> => {
 
 export async function saveSettings(values: Partial<ClinicSettings>) {
   const entries = Object.entries(values).filter(([, v]) => v !== undefined) as [keyof ClinicSettings, unknown][];
-  for (const [prop, value] of entries) {
-    await db
-      .insert(settings)
-      .values({ key: KEYS[prop], value })
-      .onConflictDoUpdate({ target: settings.key, set: { value: sql`excluded.value`, updatedAt: new Date() } });
-  }
+  if (entries.length === 0) return;
+  await db
+    .insert(settings)
+    .values(entries.map(([prop, value]) => ({ key: KEYS[prop], value })))
+    .onConflictDoUpdate({ target: settings.key, set: { value: sql`excluded.value`, updatedAt: new Date() } });
 }

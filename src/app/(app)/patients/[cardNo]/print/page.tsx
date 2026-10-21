@@ -12,9 +12,9 @@ const yn = (v: boolean | null) => (v === true ? "Yes" : v === false ? "No" : "")
 
 export default async function PrintCard({ params }: { params: Promise<{ cardNo: string }> }) {
   const user = await requirePermission("patients:view");
-  const p = await getPatientByCardNo(Number((await params).cardNo));
+  const { cardNo } = await params;
+  const [p, s] = await Promise.all([getPatientByCardNo(Number(cardNo)), getSettings()]);
   if (!p) notFound();
-  const s = await getSettings();
   const clinical = can(user, "clinical:view");
   const Row = ({ k, v }: { k: string; v?: string | number | null }) => (
     <div className="flex gap-2 border-b border-zinc-200 py-1.5"><span className="w-32 shrink-0 text-xs uppercase tracking-wide text-zinc-500">{k}</span><span className="whitespace-pre-line">{v ?? ""}</span></div>

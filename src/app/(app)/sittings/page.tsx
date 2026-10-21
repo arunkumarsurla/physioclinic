@@ -20,9 +20,13 @@ export default async function Register({ searchParams }: { searchParams: Promise
   const today = todayISO();
   const date = dateParam(s.date, today);
   const editId = sp(s.edit);
-  const [rows, sum, editing] = await Promise.all([listVisitsOnDate(date), daySummary(date), editId ? getVisit(editId) : null]);
+  const [rows, sum, editing, settings] = await Promise.all([
+    listVisitsOnDate(date),
+    daySummary(date),
+    editId ? getVisit(editId) : null,
+    getSettings(),
+  ]);
   const canRecord = can(user, "sittings:record");
-  const settings = await getSettings();
   const cc = settings.whatsappCountryCode;
   const waOn = waAllowed(user, settings, "dues"); // register needs sittings:view already, so money messages are allowed
   const editRow = editing && editing.v.visitDate === date ? editing : null;

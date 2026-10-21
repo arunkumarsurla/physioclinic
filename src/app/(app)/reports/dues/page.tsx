@@ -17,8 +17,7 @@ export default async function Dues({ searchParams }: { searchParams: Promise<Rec
   const s = await searchParams;
   const q = sp(s.q);
   const min = Math.max(0, Number(sp(s.min)) || 0);
-  const r = await duesReport({ q, min });
-  const settings = await getSettings();
+  const [r, settings] = await Promise.all([duesReport({ q, min }), getSettings()]);
   const waDues = waAllowed(user, settings, "dues");
   return (
     <>

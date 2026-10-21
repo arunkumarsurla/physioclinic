@@ -9,18 +9,9 @@ import { getDashboard } from "@/server/dashboard";
 import { getSettings } from "@/server/settings";
 import { waAllowed } from "@/server/whatsapp";
 import {
-  ArrowUpRight,
-  ArrowDownRight,
   Calendar,
-  IndianRupee,
   UserPlus,
   Receipt,
-  TrendingUp,
-  TrendingDown,
-  Wallet,
-  Users,
-  AlertCircle,
-  ChevronRight,
 } from "lucide-react";
 
 export const metadata = { title: "Dashboard" };

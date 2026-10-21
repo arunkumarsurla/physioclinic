@@ -31,7 +31,11 @@ export default async function PatientPage({ params, searchParams }: Props) {
 
   const showSittings = can(user, "sittings:view");
   const showClinical = can(user, "clinical:view");
-  const [totals, visits] = showSittings ? await Promise.all([getPatientTotals(p.id), listPatientVisits(p.id)]) : [null, []];
+  const [totals, visits, settings] = await Promise.all([
+    showSittings ? getPatientTotals(p.id) : null,
+    showSittings ? listPatientVisits(p.id) : Promise.resolve([]),
+    getSettings(),
+  ]);
   const billing = totals ? computeBilling({ treatDays: p.treatDays, fee: p.fee, forDays: p.forDays }, totals.attended, totals.paid) : null;
   const today = todayISO();
   const editing = visits.find((v) => v.date === editDate);
@@ -39,7 +43,6 @@ export default async function PatientPage({ params, searchParams }: Props) {
   const attendedAsc = visits.filter((v) => v.attended).map((v) => v.date).sort();
   const sittingNo = new Map(attendedAsc.map((d, i) => [d, i + 1]));
   const archived = !!p.deletedAt;
-  const settings = await getSettings();
   const cc = settings.whatsappCountryCode;
   const waGeneral = waAllowed(user, settings, "general");
   const waMoney = waAllowed(user, settings, "dues");
