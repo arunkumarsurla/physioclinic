@@ -1,0 +1,13 @@
+{
+ "nextCardNo": 1184,
+ "defaultCardFee": 100,
+ "counts": {
+  "patients": 1122,
+  "visits": 14307,
+  "visitsSkippedOrphan": 0
+ },
+ "totals": {
+  "cardFees": 91500,
+  "sittingPayments": 4805410
+ }
+}

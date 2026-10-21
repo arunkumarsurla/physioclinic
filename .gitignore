@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# data/ contains real patient records migrated from the old software.
+# Do NOT push this repository to a public host with these folders included.
+# After importing into Neon you can delete data/legacy and data/legacy-archive.
