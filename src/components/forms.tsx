@@ -4,7 +4,7 @@ import Link from "next/link";
 import { createContext, useActionState, useContext, useEffect, useId, useRef, useState, useTransition, type ReactNode } from "react";
 import type { ActionState } from "@/lib/action-types";
 import { cn } from "@/lib/utils";
-import { btn } from "@/components/ui";
+import { btn, Spinner } from "@/components/ui";
 
 export { btn };
 
@@ -78,7 +78,8 @@ export function ActionForm({
               stickyActions && "no-print sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 -mx-4 border-t border-zinc-200 bg-white/90 px-4 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 md:pt-1 md:backdrop-blur-none",
             )}
           >
-            <button type="submit" disabled={pending} className={cn(btn("primary"), stickyActions && "max-md:flex-1", submitClassName)}>
+            <button type="submit" disabled={pending} aria-busy={pending} className={cn(btn("primary"), stickyActions && "max-md:flex-1", submitClassName)}>
+              {pending && <Spinner />}
               {pending ? "Saving…" : submitLabel}
             </button>
             {cancelHref && (
@@ -230,6 +231,7 @@ export function ConfirmAction({
       <button
         type="button"
         disabled={pending}
+        aria-busy={pending}
         className={btn(variant, size)}
         onClick={() => {
           if (!window.confirm(message)) return;
@@ -242,7 +244,7 @@ export function ConfirmAction({
           });
         }}
       >
-        {pending ? "…" : label}
+        {pending ? <><Spinner /> Working…</> : label}
       </button>
       {error && <span className="mt-1 text-xs text-red-600">{error}</span>}
     </span>
@@ -274,23 +276,30 @@ export function PatientPicker({
   const [hits, setHits] = useState<Hit[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const listId = useId();
 
   useEffect(() => {
     if (q.trim().length < 1) {
       setHits([]);
+      setSearchError(false);
       return;
     }
     setLoading(true);
+    setSearchError(false);
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
       try {
         const r = await fetch(`/api/patients/search?q=${encodeURIComponent(q.trim())}`, { signal: ctrl.signal });
-        if (r.ok) setHits((await r.json()).results);
+        if (!r.ok) throw new Error("Patient search failed");
+        setHits((await r.json()).results);
       } catch {
-        /* aborted */
+        if (!ctrl.signal.aborted) {
+          setHits([]);
+          setSearchError(true);
+        }
       } finally {
-        setLoading(false);
+        if (!ctrl.signal.aborted) setLoading(false);
       }
     }, 200);
     return () => {
@@ -327,8 +336,9 @@ export function PatientPicker({
           />
           {open && q.trim() && (
             <ul id={listId} className="absolute z-20 mt-1.5 max-h-72 w-full overflow-auto rounded-xl border border-zinc-200 bg-white p-1 shadow-lift">
-              {loading && hits.length === 0 && <li className="px-3 py-2 text-xs text-zinc-400">Searching…</li>}
-              {!loading && hits.length === 0 && <li className="px-3 py-2 text-xs text-zinc-400">No patient found</li>}
+              {loading && hits.length === 0 && <li role="status" className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-500"><Spinner className="h-3.5 w-3.5" /> Searching…</li>}
+              {!loading && searchError && <li role="alert" className="px-3 py-2 text-xs text-red-600">Could not search patients. Try again.</li>}
+              {!loading && !searchError && hits.length === 0 && <li className="px-3 py-2 text-xs text-zinc-400">No patient found</li>}
               {hits.map((h) => (
                 <li key={h.id}>
                   <button

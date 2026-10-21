@@ -14,6 +14,33 @@ export function btn(variant: "primary" | "secondary" | "ghost" | "danger" | "wha
     variant === "whatsapp" && "border border-emerald-300 bg-white text-emerald-800 shadow-sm hover:bg-emerald-50",
   );
 }
+
+export function Spinner({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={cn("h-4 w-4 animate-spin motion-reduce:animate-none", className)}
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+      <path d="M21 12a9 9 0 0 1-9 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function PageLoading({ className }: { className?: string }) {
+  return (
+    <div role="status" aria-busy="true" aria-label="Loading page" className={cn("flex min-h-[60vh] items-center justify-center", className)}>
+      <span className="sr-only">Loading…</span>
+      <span aria-hidden="true" className="inline-flex items-center gap-3 text-sm font-medium text-brand-700">
+        <Spinner className="h-6 w-6" />
+        Loading...
+      </span>
+    </div>
+  );
+}
+
 /** Small inline row action (Edit / Manage / View) */
 export const linkAction = "inline-flex min-h-8 items-center rounded-md px-2.5 text-xs font-medium text-brand-700 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 max-md:min-h-9";
 

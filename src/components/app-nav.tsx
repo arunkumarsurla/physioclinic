@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   CalendarCheck,
   Ellipsis,
@@ -19,6 +20,7 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
+  LoaderCircle,
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth";
 import { cn, initials } from "@/lib/utils";
@@ -50,6 +52,28 @@ const SHORT: Record<string, string> = {
   "/reports": "Reports",
   "/": "Home",
 };
+
+function LogoutButton({ collapsed = false }: { collapsed?: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      title={pending ? "Signing out…" : "Sign out"}
+      aria-busy={pending}
+      disabled={pending}
+      className={cn(
+        "flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-xs text-brand-100/70 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-300 disabled:cursor-wait",
+        collapsed ? "justify-center" : "",
+      )}
+    >
+      {pending ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin motion-reduce:animate-none" /> : <LogOut className="h-4 w-4 shrink-0" />}
+      <span className={cn("transition-all duration-200", collapsed ? "w-0 overflow-hidden opacity-0" : "w-auto opacity-100")}>
+        {pending ? "Signing out…" : "Sign out"}
+      </span>
+      {collapsed && <span className="sr-only">{pending ? "Signing out…" : "Sign out"}</span>}
+    </button>
+  );
+}
 
 export function AppNav({
   items,
@@ -255,27 +279,7 @@ export function AppNav({
         </Link>
 
         <form action={logoutAction}>
-          <button
-            type="submit"
-            title="Sign out"
-            className={cn(
-              "flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-xs text-brand-100/70 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-300",
-              collapsed ? "justify-center" : "",
-            )}
-          >
-            <LogOut className="h-4 w-4 shrink-0" />
-            <span
-              className={cn(
-                "transition-all duration-200",
-                collapsed
-                  ? "w-0 overflow-hidden opacity-0"
-                  : "w-auto opacity-100",
-              )}
-            >
-              Sign out
-            </span>
-            {collapsed && <span className="sr-only">Sign out</span>}
-          </button>
+          <LogoutButton collapsed={collapsed} />
         </form>
       </div>
 
@@ -470,12 +474,7 @@ export function AppNav({
               password
             </Link>
             <form action={logoutAction}>
-              <button
-                type="submit"
-                className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-[15px] font-medium text-red-700 active:bg-red-50"
-              >
-                <LogOut className="h-5 w-5" strokeWidth={1.8} /> Sign out
-              </button>
+              <LogoutButton />
             </form>
           </div>
         </div>
