@@ -85,7 +85,7 @@ export default async function Register({ searchParams }: { searchParams: Promise
                           ? <WhatsAppLink cardNo={r.cardNo} kind="reminder" phone={r.phone} countryCode={cc} variant="action" label="Reminder" />
                           : null)}
                     {canRecord && <Link href={`/sittings?date=${date}&edit=${r.id}`} className={linkAction}>Edit</Link>}
-                    {can(user, "sittings:delete") && <ConfirmAction action={deleteVisitAction} fields={{ id: r.id }} confirm={`Delete this entry for #${r.cardNo} ${r.name}?`} label="Delete" />}
+                    {can(user, "sittings:delete") && <ConfirmAction action={deleteVisitAction} fields={{ id: r.id }} confirm={`Delete this entry for #${r.cardNo} ${r.name}?`} label="Delete" successMessage="Sitting entry deleted." />}
                   </span></td>
                 </tr>
               ))}

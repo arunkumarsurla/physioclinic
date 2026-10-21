@@ -52,7 +52,7 @@ export default async function Expenses({ searchParams }: { searchParams: Promise
                   <td data-label="Amount" className={tdr}>{inr(r.amount)}</td>
                   <td className={`${td} no-print`}><span className="flex items-center justify-end gap-2">
                     {can(user, "expenses:edit") && <Link href={`/expenses/${r.id}`} className={linkAction}>Edit</Link>}
-                    {can(user, "expenses:delete") && <ConfirmAction action={deleteExpenseAction} fields={{ id: r.id }} confirm={`Delete “${r.title}” (${inr(r.amount)})?`} label="Delete" />}
+                    {can(user, "expenses:delete") && <ConfirmAction action={deleteExpenseAction} fields={{ id: r.id }} confirm={`Delete “${r.title}” (${inr(r.amount)})?`} label="Delete" successMessage="Expense deleted." />}
                   </span></td>
                 </tr>
               ))}

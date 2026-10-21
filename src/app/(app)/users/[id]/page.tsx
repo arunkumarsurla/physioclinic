@@ -27,7 +27,7 @@ export default async function ManageUser({ params }: { params: Promise<{ id: str
       <Card title="Sessions">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-zinc-600">{sessions} active session{sessions === 1 ? "" : "s"}.</p>
-          <ConfirmAction action={revokeSessionsAction} fields={{ id: u.id }} confirm={`Sign ${u.name} out of all devices?`} label="Sign out everywhere" variant="secondary" size="md" />
+          <ConfirmAction action={revokeSessionsAction} fields={{ id: u.id }} confirm={`Sign ${u.name} out of all devices?`} label="Sign out everywhere" variant="secondary" size="md" successMessage="All sessions have been revoked." />
         </div>
       </Card>
     </div>

@@ -26,7 +26,7 @@ export default async function RolesPage() {
                 <td data-label="Users" className={tdr}>{r.userCount}</td>
                 <td className={td}><span className="flex items-center justify-end gap-2">
                   <Link href={`/roles/${r.id}`} className={linkAction}>{r.key === "admin" ? "View" : "Edit"}</Link>
-                  {!r.isSystem && r.userCount === 0 && <ConfirmAction action={deleteRoleAction} fields={{ id: r.id }} confirm={`Delete role ${r.name}?`} label="Delete" />}
+                  {!r.isSystem && r.userCount === 0 && <ConfirmAction action={deleteRoleAction} fields={{ id: r.id }} confirm={`Delete role ${r.name}?`} label="Delete" successMessage="Role deleted." />}
                 </span></td>
               </tr>
             ))}

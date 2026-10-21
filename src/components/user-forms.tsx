@@ -11,7 +11,7 @@ export function UserForm({ mode, roles, defaults }: {
 }) {
   const d = defaults;
   return (
-    <ActionForm action={mode === "create" ? createUserAction : updateUserAction} submitLabel={mode === "create" ? "Create user" : "Save changes"} cancelHref="/users" resetOnSuccess={mode === "create"}>
+    <ActionForm action={mode === "create" ? createUserAction : updateUserAction} submitLabel={mode === "create" ? "Create user" : "Save changes"} cancelHref="/users" resetOnSuccess={mode === "create"} successToast={mode === "create" ? "User created. Share the one-time password shown in the form securely." : undefined}>
       {d && <input type="hidden" name="id" value={d.id} />}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Full name" name="name" defaultValue={d?.name} required maxLength={120} />
@@ -34,7 +34,7 @@ export function UserForm({ mode, roles, defaults }: {
 
 export function ResetPasswordForm({ id }: { id: string }) {
   return (
-    <ActionForm action={resetPasswordAction} submitLabel="Reset password" resetOnSuccess>
+    <ActionForm action={resetPasswordAction} submitLabel="Reset password" resetOnSuccess successToast="Password reset. Share the one-time password shown in the form securely.">
       <input type="hidden" name="id" value={id} />
       <Field label="New temporary password" name="password" type="password" autoComplete="new-password" hint="Leave blank to generate one. The user must change it at next sign-in and is signed out everywhere." />
     </ActionForm>

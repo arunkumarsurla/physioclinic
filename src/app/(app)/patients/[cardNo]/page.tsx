@@ -68,8 +68,8 @@ export default async function PatientPage({ params, searchParams }: Props) {
             <Link href={`/patients/${p.cardNo}/print`} className={btn("secondary")}>Print OP card</Link>
             {can(user, "patients:edit") && <Link href={`/patients/${p.cardNo}/edit`} className={btn("secondary")}>Edit</Link>}
             {can(user, "patients:delete") && (archived
-              ? <ConfirmAction action={restorePatientAction} fields={{ id: p.id }} confirm="Restore this patient?" label="Restore" variant="secondary" size="md" />
-              : <ConfirmAction action={archivePatientAction} fields={{ id: p.id }} confirm="Archive this patient? They will be hidden from the active list, but all payments stay in the books." label="Archive" size="md" />)}
+              ? <ConfirmAction action={restorePatientAction} fields={{ id: p.id }} confirm="Restore this patient?" label="Restore" variant="secondary" size="md" successMessage="Patient restored." />
+              : <ConfirmAction action={archivePatientAction} fields={{ id: p.id }} confirm="Archive this patient? They will be hidden from the active list, but all payments stay in the books." label="Archive" size="md" successMessage="Patient archived." />)}
           </>
         }
       />
@@ -179,7 +179,7 @@ export default async function PatientPage({ params, searchParams }: Props) {
                         <span className="flex items-center justify-end gap-2">
                           {waMoney && v.payment > 0 && <WhatsAppLink cardNo={p.cardNo} kind="receipt" phone={p.phone} countryCode={cc} date={v.date} variant="action" label="Receipt" />}
                           {can(user, "sittings:record") && !archived && <Link href={`/patients/${p.cardNo}?edit=${v.date}`} scroll className={linkAction}>Edit</Link>}
-                          {can(user, "sittings:delete") && <ConfirmAction action={deleteVisitAction} fields={{ id: v.id }} confirm={`Delete the sitting of ${fmtDate(v.date)}${v.payment > 0 ? ` and its payment of ${inr(v.payment)}` : ""}?`} label="Delete" />}
+                          {can(user, "sittings:delete") && <ConfirmAction action={deleteVisitAction} fields={{ id: v.id }} confirm={`Delete the sitting of ${fmtDate(v.date)}${v.payment > 0 ? ` and its payment of ${inr(v.payment)}` : ""}?`} label="Delete" successMessage="Sitting entry deleted." />}
                         </span>
                       </td>
                     </tr>

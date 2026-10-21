@@ -5,6 +5,7 @@ import { createContext, useActionState, useContext, useEffect, useId, useRef, us
 import type { ActionState } from "@/lib/action-types";
 import { cn } from "@/lib/utils";
 import { btn, Spinner } from "@/components/ui";
+import { useToast } from "@/components/toast";
 
 export { btn };
 
@@ -27,6 +28,7 @@ export function ActionForm({
   hideSubmit = false,
   submitClassName,
   stickyActions = false,
+  successToast,
 }: {
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   children: ReactNode;
@@ -38,14 +40,21 @@ export function ActionForm({
   submitClassName?: string;
   /** UI only: keep Save/Cancel pinned above the mobile tab bar on long forms */
   stickyActions?: boolean;
+  successToast?: string;
 }) {
   const [state, dispatch, pending] = useActionState(action, {} as ActionState);
   const [, startTransition] = useTransition();
   const ref = useRef<HTMLFormElement>(null);
+  const previousState = useRef(state);
+  const { showToast } = useToast();
 
   useEffect(() => {
+    if (previousState.current === state) return;
+    previousState.current = state;
     if (state.ok && resetOnSuccess) ref.current?.reset();
-  }, [state, resetOnSuccess]);
+    if (state.error) showToast("error", state.error);
+    else if (state.ok && state.message) showToast("success", successToast ?? state.message);
+  }, [state, resetOnSuccess, showToast, successToast]);
 
   return (
     <FormCtx.Provider value={{ errors: state.fieldErrors ?? {}, pending }}>
@@ -59,12 +68,7 @@ export function ActionForm({
           startTransition(() => dispatch(fd));
         }}
       >
-        {state.error && (
-          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
-            {state.error}
-          </div>
-        )}
-        {state.ok && state.message && (
+        {successToast && state.ok && state.message && (
           <div role="status" className="rounded-lg border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800 whitespace-pre-line">
             {state.message}
           </div>
@@ -215,7 +219,7 @@ export function SegmentedField({
 
 /** Button that runs a server action after a confirm() prompt (delete, archive, revoke…). */
 export function ConfirmAction({
-  action, fields, confirm: message, label, variant = "danger", size = "sm",
+  action, fields, confirm: message, label, variant = "danger", size = "sm", successMessage,
 }: {
   action: (fd: FormData) => Promise<ActionState>;
   fields: Record<string, string>;
@@ -223,30 +227,83 @@ export function ConfirmAction({
   label: string;
   variant?: "danger" | "secondary" | "ghost";
   size?: "sm" | "md";
+  successMessage?: string;
 }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogId = useId();
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  const close = () => {
+    if (pending) return;
+    setOpen(false);
+    setError(null);
+  };
+
+  const runAction = () => {
+    const fd = new FormData();
+    for (const [k, v] of Object.entries(fields)) fd.set(k, v);
+    setError(null);
+    start(async () => {
+      try {
+        const result = await action(fd);
+        if (result.error) {
+          setError(result.error);
+          return;
+        }
+        showToast("success", successMessage ?? `${label} completed.`);
+        setOpen(false);
+      } catch (e) {
+        console.error("confirmation action failed", e);
+        setError("Could not complete this action. Please try again.");
+      }
+    });
+  };
+
   return (
     <span className="inline-flex flex-col items-stretch">
       <button
+        ref={triggerRef}
         type="button"
         disabled={pending}
-        aria-busy={pending}
         className={btn(variant, size)}
-        onClick={() => {
-          if (!window.confirm(message)) return;
-          const fd = new FormData();
-          for (const [k, v] of Object.entries(fields)) fd.set(k, v);
-          setError(null);
-          start(async () => {
-            const r = await action(fd);
-            if (r.error) setError(r.error);
-          });
-        }}
+        onClick={() => { setError(null); setOpen(true); }}
       >
-        {pending ? <><Spinner /> Working…</> : label}
+        {label}
       </button>
-      {error && <span className="mt-1 text-xs text-red-600">{error}</span>}
+      <dialog
+        ref={dialogRef}
+        aria-labelledby={`${dialogId}-title`}
+        aria-describedby={`${dialogId}-description`}
+        onCancel={(event) => { event.preventDefault(); close(); }}
+        onClose={() => setOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) close();
+        }}
+        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-zinc-200 bg-white p-0 text-zinc-900 shadow-lift backdrop:bg-brand-950/50 backdrop:backdrop-blur-[2px]"
+      >
+        <div className="p-5 sm:p-6">
+          <h2 id={`${dialogId}-title`} className="text-lg font-semibold">{label}?</h2>
+          <p id={`${dialogId}-description`} className="mt-2 whitespace-pre-line text-sm leading-relaxed text-zinc-600">{message}</p>
+          {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button type="button" disabled={pending} onClick={close} className={btn("ghost")}>Cancel</button>
+            <button type="button" disabled={pending} aria-busy={pending} onClick={runAction} className={btn(variant === "danger" ? "danger" : "primary")}>
+              {pending ? <><Spinner /> Working…</> : label}
+            </button>
+          </div>
+        </div>
+      </dialog>
     </span>
   );
 }
