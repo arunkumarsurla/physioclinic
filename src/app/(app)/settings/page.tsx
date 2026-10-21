@@ -1,4 +1,5 @@
-import { Card, ExportLink, PageHeader } from "@/components/ui";
+import Link from "next/link";
+import { Card, ExportLink, PageHeader, btn } from "@/components/ui";
 import { SettingsForm } from "@/components/settings-form";
 import { can, requirePermission } from "@/lib/auth";
 import { getSettings } from "@/server/settings";
@@ -12,6 +13,12 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-5">
       <PageHeader title="Settings" />
       <Card title="Clinic & WhatsApp"><SettingsForm settings={settings} /></Card>
+      <Card title="Account security">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-zinc-600">Update your password to keep your account secure.</p>
+          <Link href="/account/password" className={btn("secondary")}>Change password</Link>
+        </div>
+      </Card>
       {(can(user, "backup:export") || can(user, "reports:export")) && (
         <Card title="Data export">
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">

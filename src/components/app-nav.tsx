@@ -7,7 +7,6 @@ import { useFormStatus } from "react-dom";
 import {
   CalendarCheck,
   Ellipsis,
-  KeyRound,
   LayoutDashboard,
   LogOut,
   ScrollText,
@@ -204,27 +203,25 @@ export function AppNav({
         aria-label="Main"
       >
         {main.length > 0 && <ul className="space-y-1">{main.map(link)}</ul>}
-        {admin.length > 0 && (
-          <div className="mt-6">
-            <div
-              className={cn(
-                "mb-2 px-3 text-xs font-medium text-brand-200/50 transition-all duration-200",
-                collapsed
-                  ? "h-0 overflow-hidden opacity-0"
-                  : "h-auto opacity-100",
-              )}
-            >
-              Administration
-            </div>
-            <div
-              className={cn(
-                "mx-3 mb-3 border-t border-white/10 transition-all duration-200",
-                collapsed ? "opacity-100" : "opacity-0",
-              )}
-            />
-            <ul className="space-y-1">{admin.map(link)}</ul>
+        <div className="mt-6">
+          <div
+            className={cn(
+              "mb-2 px-3 text-xs font-medium text-brand-200/50 transition-all duration-200",
+              collapsed
+                ? "h-0 overflow-hidden opacity-0"
+                : "h-auto opacity-100",
+            )}
+          >
+            {admin.length > 0 ? "Administration" : "Settings"}
           </div>
-        )}
+          <div
+            className={cn(
+              "mx-3 mb-3 border-t border-white/10 transition-all duration-200",
+              collapsed ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <ul className="space-y-1">{admin.map(link)}</ul>
+        </div>
       </nav>
 
       {/* footer / user */}
@@ -255,28 +252,6 @@ export function AppNav({
             </div>
           </div>
         </div>
-
-        <Link
-          href="/account/password"
-          title="Change password"
-          className={cn(
-            "flex items-center gap-2.5 rounded-lg px-2 py-2 text-xs text-brand-100/70 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-300",
-            collapsed ? "justify-center" : "",
-          )}
-        >
-          <KeyRound className="h-4 w-4 shrink-0" />
-          <span
-            className={cn(
-              "transition-all duration-200",
-              collapsed
-                ? "w-0 overflow-hidden opacity-0"
-                : "w-auto opacity-100",
-            )}
-          >
-            Change password
-          </span>
-          {collapsed && <span className="sr-only">Change password</span>}
-        </Link>
 
         <form action={logoutAction}>
           <LogoutButton collapsed={collapsed} />
@@ -465,14 +440,6 @@ export function AppNav({
             </>
           )}
           <div className="mt-4 space-y-0.5 border-t border-zinc-100 pt-3">
-            <Link
-              href="/account/password"
-              onClick={() => setSheet(false)}
-              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium text-zinc-700 active:bg-zinc-100"
-            >
-              <KeyRound className="h-5 w-5" strokeWidth={1.8} /> Change
-              password
-            </Link>
             <form action={logoutAction}>
               <LogoutButton />
             </form>
